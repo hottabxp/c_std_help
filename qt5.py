@@ -60,7 +60,7 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         self.cursor.execute('SELECT content FROM funcs WHERE name = ?',(val.data(),))
         x = self.cursor.fetchone()
-
+        # TODO Обработать исключение
         self.textBrowser.setText(x[0])
 
     def create_toolbar_items(self):
