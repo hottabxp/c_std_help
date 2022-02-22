@@ -1,7 +1,9 @@
+#!/usr/bin/python3
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import  QStandardItemModel, QStandardItem, QFont, QIcon
 import gui
+import os
 
 from PyQt5.QtWidgets import QSizePolicy
 
@@ -13,6 +15,11 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
+        self.CURRENT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)))
+        self.ASSETS_DIR = (os.path.join(self.CURRENT_DIR,'assets/'))
+        self.DATA_DIR = (os.path.join(self.CURRENT_DIR,'data/'))
+
+
         self.centralwidget.setLayout(self.horizontalLayout)
 
         self.create_toolbar_items()
@@ -23,7 +30,7 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def fill_treeview_from_db(self):
 
-        self.conn = sqlite3.connect('func.db')
+        self.conn = sqlite3.connect(os.path.join(self.DATA_DIR,'func.db'))
         self.cursor = self.conn.cursor()
         
         self.treeModel = QStandardItemModel()
@@ -66,12 +73,12 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def create_toolbar_items(self):
         collapse_button = QtWidgets.QToolButton()
-        collapse_button.setIcon(QIcon('./assets/collapse.png'))
+        collapse_button.setIcon(QIcon(os.path.join(self.ASSETS_DIR,'collapse.png')))
         collapse_button.clicked.connect(lambda: self.treeView.collapseAll())
         self.toolBar.addWidget(collapse_button)
 
         expand_button = QtWidgets.QToolButton()
-        expand_button.setIcon(QIcon('./assets/expand.png'))
+        expand_button.setIcon(QIcon(os.path.join(self.ASSETS_DIR,'expand.png')))
         expand_button.clicked.connect(lambda: self.treeView.expandAll())
         self.toolBar.addWidget(expand_button)
 
@@ -84,24 +91,24 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.toolBar.addWidget(self.search_box)
         
         self.clear_button = QtWidgets.QToolButton()
-        self.clear_button.setIcon(QIcon('./assets/clear.png'))
+        self.clear_button.setIcon(QIcon(os.path.join(self.ASSETS_DIR,'clear.png')))
         self.clear_button.clicked.connect(self.clear_searchBox)
         self.toolBar.addWidget(self.clear_button)
         self.toolBar.addSeparator()
 
         self.zoom_fit_button = QtWidgets.QToolButton()
         self.zoom_fit_button.clicked.connect(self.zoom_fit)
-        self.zoom_fit_button.setIcon(QIcon('./assets/zoom-fit.png'))
+        self.zoom_fit_button.setIcon(QIcon(os.path.join(self.ASSETS_DIR,'zoom-fit.png')))
         self.toolBar.addWidget(self.zoom_fit_button) 
 
         self.zoom_out_button = QtWidgets.QToolButton()
         self.zoom_out_button.clicked.connect(self.zoom_out)
-        self.zoom_out_button.setIcon(QIcon('./assets/zoom-out.png'))
+        self.zoom_out_button.setIcon(QIcon(os.path.join(self.ASSETS_DIR,'zoom-out.png')))
         self.toolBar.addWidget(self.zoom_out_button)
 
         self.zoom_in_button = QtWidgets.QToolButton()
         self.zoom_in_button.clicked.connect(self.zoom_in)
-        self.zoom_in_button.setIcon(QIcon('./assets/zoom-in.png'))
+        self.zoom_in_button.setIcon(QIcon(os.path.join(self.ASSETS_DIR,'zoom-in.png')))
         self.toolBar.addWidget(self.zoom_in_button)
 
     def search(self):
