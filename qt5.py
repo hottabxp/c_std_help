@@ -16,18 +16,22 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.centralwidget.setLayout(self.horizontalLayout)
 
         self.create_toolbar_items()
+        self.fill_treeview_from_db()
 
-        
+
+        self.treeView.clicked.connect(self.getValue)
+
+    def fill_treeview_from_db(self):
 
         self.conn = sqlite3.connect('func.db')
         self.cursor = self.conn.cursor()
         
-        treeModel = QStandardItemModel()
-        rootNode = treeModel.invisibleRootItem()
+        self.treeModel = QStandardItemModel()
+        rootNode = self.treeModel.invisibleRootItem()
 
-        self.treeView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.treeView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers) # TreeView ReadOnly
 
-        main_treeItem = QStandardItem('C stdlib')
+        self.main_treeItem = QStandardItem('C stdlib')
 
 
         self.cursor.execute('SELECT DISTINCT chapter from funcs')
@@ -41,17 +45,14 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
             for result in results:
                 func.appendRow(QStandardItem(result[0]))
             
-            main_treeItem.appendRow(func)
+            self.main_treeItem.appendRow(func)
 
 
-        rootNode.appendRow(main_treeItem)
+        rootNode.appendRow(self.main_treeItem)
 
-        self.treeView.setModel(treeModel)
-        # self.treeView.expandAll()
+        self.treeView.setModel(self.treeModel)
         
-
-
-        self.treeView.clicked.connect(self.getValue)
+        pass
 
     def closeEvent(self, event):
         print('Exit')
@@ -78,12 +79,14 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
         self.search_box = QtWidgets.QLineEdit()
         self.search_box.setMaximumSize(200,100)
+        self.search_box.setPlaceholderText('Поиск...')
+        # self.search_box.textChanged.connect(self.search)
         self.toolBar.addWidget(self.search_box)
         
-        self.search_button = QtWidgets.QToolButton()
-        self.search_button.setIcon(QIcon('./assets/clear.png'))
-        self.search_button.clicked.connect(self.clear_searchBox)
-        self.toolBar.addWidget(self.search_button)
+        self.clear_button = QtWidgets.QToolButton()
+        self.clear_button.setIcon(QIcon('./assets/clear.png'))
+        self.clear_button.clicked.connect(self.clear_searchBox)
+        self.toolBar.addWidget(self.clear_button)
         self.toolBar.addSeparator()
 
         self.zoom_fit_button = QtWidgets.QToolButton()
@@ -101,6 +104,17 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
         self.zoom_in_button.setIcon(QIcon('./assets/zoom-in.png'))
         self.toolBar.addWidget(self.zoom_in_button)
 
+    def search(self):
+        # select name from funcs where name like '%print%'
+        # BUG Исправить поиск
+        self.treeView.setModel(None)
+        self.treeView.setModel(self.treeModel)
+        if self.search_box.text():
+            self.cursor.execute('SELECT name from funcs WHERE name like ?',('%'+self.search_box.text()+'%',))
+            result = self.cursor.fetchall()
+            print(result)
+            for x in result:
+                self.main_treeItem.appendRow(QStandardItem(x[0]))
 
     def zoom_in(self):
         font_size = self.textBrowser.fontInfo().pointSize()
@@ -122,6 +136,7 @@ class ExampleApp(QtWidgets.QMainWindow, gui.Ui_MainWindow):
 
     def clear_searchBox(self):
         self.search_box.setText('')
+        self.fill_treeview_from_db()
 
 
 
